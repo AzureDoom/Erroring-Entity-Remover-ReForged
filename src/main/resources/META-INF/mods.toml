@@ -1,0 +1,26 @@
+modLoader="javafml"
+loaderVersion="[40,)"
+license="MIT"
+[[mods]]
+modId="eerreforged"
+version="${file.jarVersion}"
+displayName="Erroring Entity Remover Reforged" 
+logoFile="eerreforged.png" 
+credits="Thanks to The_Fireplace for their Fabric version" 
+authors="AzureDoom, The_Fireplace"
+description='''
+Removes entities that throw errors and crash the game while ticking.
+'''
+[[dependencies.eerreforged]] #optional
+    modId="forge" 
+    mandatory=true 
+    versionRange="[40,)" 
+    ordering="NONE"
+    side="BOTH"
+# Here's another dependency
+[[dependencies.eerreforged]]
+    modId="minecraft"
+    mandatory=true
+    versionRange="[1.18.2,)"
+    ordering="NONE"
+    side="BOTH"

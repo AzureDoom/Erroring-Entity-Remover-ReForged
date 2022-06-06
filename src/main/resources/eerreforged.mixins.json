@@ -1,0 +1,13 @@
+{
+	"required": true,
+	"package": "mod.azure.eerreforged.mixin",
+	"refmap": "eerreforged.refmap.json",
+	"compatibilityLevel": "JAVA_17",
+	"mixins": [
+		"LevelMixin"
+	],
+	"injectors": {
+		"defaultRequire": 1
+	},
+	"minVersion": "0.8.4"
+}

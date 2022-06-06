@@ -1,140 +1,128 @@
-//file:noinspection GroovyAssignabilityCheck
+buildscript {
+    repositories {
+        maven { url = 'https://maven.minecraftforge.net' }
+        jcenter()
+        mavenCentral()
+        gradlePluginPortal()
+        maven { url = 'https://repo.spongepowered.org/repository/maven-public/' }
+    }
+    dependencies {
+        classpath group: 'net.minecraftforge.gradle', name: 'ForgeGradle', version: '5.1.+', changing: true
+        classpath 'gradle.plugin.com.matthewprenger:CurseGradle:1.4.0'
+        classpath group: 'org.spongepowered', name: 'mixingradle', version: '0.7-SNAPSHOT'		
+    }
+}
 plugins {
-	// Dependencies
-	id 'fabric-loom' version '0.10-SNAPSHOT'
-	// Mod Hosting Publish
-	id 'com.matthewprenger.cursegradle' version '1.4.0'
-	id 'com.modrinth.minotaur' version '1.1.0'
-	// Maven Publish
-	id 'maven-publish'
-	id 'signing'
-	id 'io.codearte.nexus-staging' version '0.30.0'
+    id 'eclipse'
+    id 'maven-publish'
+}
+apply plugin: 'net.minecraftforge.gradle'
+apply plugin: 'org.spongepowered.mixin'
+apply plugin: 'com.matthewprenger.cursegradle'
+
+version = '1.0'
+group = 'mod.azure.eerreforged'
+archivesBaseName = 'eerreforged-1.18.2'
+
+java.toolchain.languageVersion = JavaLanguageVersion.of(17)
+
+mixin {
+    add sourceSets.main, "eerreforged.refmap.json"
 }
 
-sourceCompatibility = JavaVersion.VERSION_17
-targetCompatibility = JavaVersion.VERSION_17
+minecraft {
+    mappings channel: 'official', version: '1.18.2'
+	
+    runs {
+        client {
+            properties 'mixin.env.remapRefMap': 'true'
+            property 'mixin.env.refMapRemappingFile', "${project.projectDir}/build/createSrgToMcp/output.srg"
+            arg "-mixin.config=eerreforged.mixins.json"
+            workingDirectory project.file('run')
 
-archivesBaseName = project.archives_base_name
-version = "${project.mod_version}+${project.minecraft_version}"
-group = project.maven_group
+            property 'forge.enabledGameTestNamespaces', 'eerreforged'
+
+            mods {
+                eerreforged {
+                    source sourceSets.main
+                }
+            }
+        }
+
+        server {
+            properties 'mixin.env.remapRefMap': 'true'
+            property 'mixin.env.refMapRemappingFile', "${project.projectDir}/build/createSrgToMcp/output.srg"
+            arg "-mixin.config=eerreforged.mixins.json"
+            workingDirectory project.file('run')
+            property 'forge.enabledGameTestNamespaces', 'eerreforged'
+
+            mods {
+                eerreforged {
+                    source sourceSets.main
+                }
+            }
+        }
+    }
+}
+
+sourceSets.main.resources { srcDir 'src/generated/resources' }
+
+repositories {
+}
 
 dependencies {
-	minecraft "com.mojang:minecraft:${project.minecraft_version}"
-	mappings "net.fabricmc:yarn:${project.yarn_mappings}:v2"
-	modImplementation "net.fabricmc:fabric-loader:${project.loader_version}"
-
-	compileOnly 'com.google.code.findbugs:jsr305:3.0.2'
+    minecraft 'net.minecraftforge:forge:1.18.2-40.1.47'
 }
 
-processResources {
-	inputs.property 'version', project.version
+jar {
+    manifest {
+        attributes([
+                "Specification-Title"     : "eerreforged",
+                "Specification-Vendor"    : "azuredoom",
+                "Specification-Version"   : "1",
+                "Implementation-Title"    : project.name,
+                "Implementation-Version"  : project.jar.archiveVersion,
+                "Implementation-Vendor"   : "azuredoom",
+                "Implementation-Timestamp": new Date().format("yyyy-MM-dd'T'HH:mm:ssZ")
+        ])
+    }
+}
 
-	filesMatching('fabric.mod.json') {
-		expand 'version': project.version
-	}
+jar.finalizedBy('reobfJar')
+
+publishing {
+    publications {
+        mavenJava(MavenPublication) {
+            artifact jar
+        }
+    }
+    repositories {
+        maven {
+            url "file://${project.projectDir}/mcmodsrepo"
+        }
+    }
 }
 
 tasks.withType(JavaCompile).configureEach {
-	it.options.encoding = 'UTF-8'
-	it.options.release.set(17);
+    options.encoding = 'UTF-8'
 }
 
-java {
-	withJavadocJar()
-	withSourcesJar()
-}
+if (file('key.properties').exists()) {
+    curseforge {
 
-javadoc.options.addStringOption('Xdoclint:none', '-quiet')
+    	def curseProp = new Properties()
+    	File secretPropsFile = file("key.properties")
+    	curseProp.load(secretPropsFile.newInputStream())
 
-jar {
-	from('LICENSE') {
-		rename { "${it}_${project.archivesBaseName}"}
-	}
-}
-
-if (hasProperty('curseForgeApiKey')) {
-	curseforge {
-		apiKey = curseForgeApiKey
-		project {
-			id = '412568'
-			changelog = file('changelog.txt')
-			releaseType = project.release_type
-			addGameVersion project.minecraft_version
-			addGameVersion 'Java 17'
-			addGameVersion 'Fabric'
-			mainArtifact(new File(new File(buildDir, 'libs'), "$archivesBaseName-${version}.jar")) {
-				displayName = "$archivesBaseName-$version"
-			}
-		}
-		options {
-			javaIntegration = false
-			forgeGradleIntegration = false
-		}
-	}
-}
-
-import com.modrinth.minotaur.TaskModrinthUpload
-if (hasProperty('modrinthApiKey')) {
-	task publishModrinth(type: TaskModrinthUpload) {
-		token = modrinthApiKey
-		projectId = '9q1j6H6P'
-		versionNumber = version
-		versionName = project.mod_version
-		uploadFile = new File(new File(buildDir, 'libs'), "$archivesBaseName-${version}.jar")
-		changelog = file('changelog.txt').getText()
-		releaseType = project.release_type
-		addGameVersion(project.minecraft_version as String)
-		addLoader('fabric')
-	}
-}
-
-if (hasProperty('nexusUsername')) {
-	publishing {
-		publications {
-			mavenJava(MavenPublication) {
-				from components.java
-				pom {
-					name = 'Erroring Entity Remover'
-					packaging = 'jar'
-					description = 'Removes entities that throw errors and crash Minecraft while ticking.'
-					url = 'https://www.curseforge.com/minecraft/mc-mods/erroring-entity-remover'
-					scm {
-						connection = "scm:svn:https://github.com/The-Fireplace-Minecraft-Mods/${project.github_slug}.git"
-						developerConnection = "scm:svn:https://github.com/The-Fireplace-Minecraft-Mods/${project.github_slug}.git"
-						url = "https://github.com/The-Fireplace-Minecraft-Mods/${project.github_slug}"
-					}
-
-					licenses {
-						license {
-							name = 'The MIT License'
-							url = 'https://opensource.org/licenses/MIT'
-						}
-					}
-
-					developers {
-						developer {
-							id = 'the_fireplace'
-							name = 'The_Fireplace'
-							email = 'the.f1repl4ce@gmail.com'
-						}
-					}
-				}
-			}
-		}
-		repositories {
-			maven {
-				def releasesRepoUrl = 'https://oss.sonatype.org/service/local/staging/deploy/maven2/'
-				def snapshotsRepoUrl = 'https://oss.sonatype.org/content/repositories/snapshots/'
-				url = version.endsWith('SNAPSHOT') ? snapshotsRepoUrl : releasesRepoUrl
-				credentials {
-					username = nexusUsername
-					password = nexusPassword
-				}
-			}
-		}
-	}
-
-	signing {
-		sign publishing.publications.mavenJava
-	}
+    	project {
+        	apiKey = curseProp.getProperty('curseKey')
+        	id = "631342"
+        	releaseType = "release"
+        	changelogType = 'text'
+        	changelog = file('CHANGELOG.txt')
+        	addGameVersion("1.18.2")
+        	addGameVersion("Forge")
+        	addGameVersion("Java 17")
+    	}
+    }
 }

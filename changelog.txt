@@ -1,1 +1,3 @@
-Update minimum Fabric Loader version to 0.12
+v.1.0.0
+
+- First Release for 1.18.2
