@@ -21,6 +21,6 @@ Removes entities that throw errors and crash the game while ticking.
 [[dependencies.eerreforged]]
     modId="minecraft"
     mandatory=true
-    versionRange="[1.18.2,)"
+    versionRange="[1.19,)"
     ordering="NONE"
     side="BOTH"
