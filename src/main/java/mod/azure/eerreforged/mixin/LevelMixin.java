@@ -13,6 +13,7 @@ import net.minecraft.ReportedException;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.Level;
+import net.minecraftforge.server.timings.TimeTracker;
 
 @Mixin(Level.class)
 public abstract class LevelMixin {
@@ -25,6 +26,7 @@ public abstract class LevelMixin {
 	@Overwrite
 	public void guardEntityTick(Consumer<Entity> tickConsumer, Entity entity) {
 		try {
+			TimeTracker.ENTITY_UPDATE.trackStart(entity);
 			tickConsumer.accept(entity);
 		} catch (Throwable throwable) {
 			try {
