@@ -13,6 +13,7 @@ import net.minecraft.ReportedException;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.Level;
+import net.minecraftforge.server.timings.TimeTracker;
 
 @Mixin(Level.class)
 public abstract class LevelMixin {
@@ -28,6 +29,7 @@ public abstract class LevelMixin {
 			tickConsumer.accept(entity);
 		} catch (Throwable throwable) {
 			try {
+				TimeTracker.ENTITY_UPDATE.trackStart(entity);
 				LOGGER.warn("Removing erroring entity at {} :", entity.position().toString());
 				LOGGER.warn(entity.saveWithoutId(new CompoundTag()).toString());
 				entity.remove(Entity.RemovalReason.DISCARDED);

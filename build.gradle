@@ -20,7 +20,7 @@ apply plugin: 'net.minecraftforge.gradle'
 apply plugin: 'org.spongepowered.mixin'
 apply plugin: 'com.matthewprenger.cursegradle'
 
-version = '1.0'
+version = '1.0.1'
 group = 'mod.azure.eerreforged'
 archivesBaseName = 'eerreforged-1.19'
 
