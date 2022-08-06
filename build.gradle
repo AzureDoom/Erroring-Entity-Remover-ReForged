@@ -31,7 +31,7 @@ mixin {
 }
 
 minecraft {
-    mappings channel: 'official', version: '1.19'
+    mappings channel: 'official', version: '1.19.2'
 	
     runs {
         client {
@@ -71,7 +71,7 @@ repositories {
 }
 
 dependencies {
-    minecraft 'net.minecraftforge:forge:1.19.1-42.0.0'
+    minecraft 'net.minecraftforge:forge:1.19.2-43.0.0'
 }
 
 jar {
@@ -121,6 +121,8 @@ if (file('key.properties').exists()) {
         	changelogType = 'text'
         	changelog = file('CHANGELOG.txt')
         	addGameVersion("1.19")
+        	addGameVersion("1.19.1")
+        	addGameVersion("1.19.2")
         	addGameVersion("Forge")
         	addGameVersion("Java 17")
     	}
