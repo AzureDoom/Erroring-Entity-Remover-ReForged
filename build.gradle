@@ -25,16 +25,16 @@ import com.modrinth.minotaur.dependencies.ModDependency
 
 version = '1.0.1'
 group = 'mod.azure.eerreforged'
-archivesBaseName = 'eerreforged-1.18.2'
+archivesBaseName = 'eerreforged-1.17.1'
 
-java.toolchain.languageVersion = JavaLanguageVersion.of(17)
+java.toolchain.languageVersion = JavaLanguageVersion.of(16)
 
 mixin {
     add sourceSets.main, "eerreforged.refmap.json"
 }
 
 minecraft {
-    mappings channel: 'official', version: '1.18.2'
+    mappings channel: 'official', version: '1.17.1'
 	
     runs {
         client {
@@ -74,7 +74,7 @@ repositories {
 }
 
 dependencies {
-    minecraft 'net.minecraftforge:forge:1.18.2-40.1.47'
+    minecraft 'net.minecraftforge:forge:1.17.1-37.1.1'
 }
 
 jar {
@@ -123,7 +123,7 @@ if (file('key.properties').exists()) {
         	releaseType = "release"
         	changelogType = 'text'
         	changelog = file('CHANGELOG.txt')
-        	addGameVersion("1.18.2")
+        	addGameVersion("1.17.1")
         	addGameVersion("Forge")
         	addGameVersion("Java 17")
     	}
@@ -138,10 +138,10 @@ if (file('key.properties').exists()) {
 		token = modrinthProp.getProperty('modrinthKey')
 		projectId = 'IHD4lC6O' 
 		versionNumber = project.version 
-		versionName = '1.18.2'
+		versionName = '1.17.1'
 		uploadFile = jar 
 		changelog = rootProject.file("changelog.txt").text
-		gameVersions = ['1.18.2']
+		gameVersions = ['1.17.1']
 		loaders = ['forge']
 	}
 }
