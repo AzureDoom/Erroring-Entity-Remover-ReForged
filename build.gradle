@@ -125,7 +125,7 @@ if (file('key.properties').exists()) {
         	changelog = file('CHANGELOG.txt')
         	addGameVersion("1.17.1")
         	addGameVersion("Forge")
-        	addGameVersion("Java 17")
+        	addGameVersion("Java 16")
     	}
     }
 }

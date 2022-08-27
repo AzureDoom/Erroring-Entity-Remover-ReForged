@@ -14,13 +14,13 @@ Removes entities that throw errors and crash the game while ticking.
 [[dependencies.eerreforged]] #optional
     modId="forge" 
     mandatory=true 
-    versionRange="[40,)" 
+    versionRange="[37,)" 
     ordering="NONE"
     side="BOTH"
 # Here's another dependency
 [[dependencies.eerreforged]]
     modId="minecraft"
     mandatory=true
-    versionRange="[1.18.2,)"
+    versionRange="[1.17.1,)"
     ordering="NONE"
     side="BOTH"
