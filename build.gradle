@@ -42,6 +42,7 @@ minecraft {
             property 'mixin.env.refMapRemappingFile', "${project.projectDir}/build/createSrgToMcp/output.srg"
             arg "-mixin.config=eerreforged.mixins.json"
             workingDirectory project.file('run')
+            taskName 'eerrforge1.17_client'
 
             property 'forge.enabledGameTestNamespaces', 'eerreforged'
 
@@ -57,6 +58,7 @@ minecraft {
             property 'mixin.env.refMapRemappingFile', "${project.projectDir}/build/createSrgToMcp/output.srg"
             arg "-mixin.config=eerreforged.mixins.json"
             workingDirectory project.file('run')
+            taskName 'eerrforge1.17_server'
             property 'forge.enabledGameTestNamespaces', 'eerreforged'
 
             mods {
