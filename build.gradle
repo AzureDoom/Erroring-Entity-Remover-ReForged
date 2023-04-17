@@ -5,12 +5,14 @@ buildscript {
         mavenCentral()
         gradlePluginPortal()
         maven { url = 'https://repo.spongepowered.org/repository/maven-public/' }
+		maven { url = "https://plugins.gradle.org/m2/" }
     }
     dependencies {
         classpath group: 'net.minecraftforge.gradle', name: 'ForgeGradle', version: '5.1.+', changing: true
         classpath 'gradle.plugin.com.matthewprenger:CurseGradle:1.4.0'
-        classpath group: 'org.spongepowered', name: 'mixingradle', version: '0.7-SNAPSHOT'		
         classpath "com.modrinth.minotaur:Minotaur:2.+"
+        classpath 'org.spongepowered:mixingradle:0.7.+'
+        classpath "gradle.plugin.com.github.jengelman.gradle.plugins:shadow:7.0.0"
     }
 }
 plugins {
@@ -18,16 +20,25 @@ plugins {
     id 'maven-publish'
 }
 apply plugin: 'net.minecraftforge.gradle'
+apply plugin: 'com.github.johnrengelman.shadow'
 apply plugin: 'org.spongepowered.mixin'
 apply plugin: 'com.matthewprenger.cursegradle'
 apply plugin: "com.modrinth.minotaur"
 import com.modrinth.minotaur.dependencies.ModDependency
+import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
 
-version = '1.0.3'
+version = '1.0.4'
 group = 'mod.azure.eerreforged'
-archivesBaseName = 'eerreforged-1.19'
+archivesBaseName = 'eerreforged-1.19.4'
 
 java.toolchain.languageVersion = JavaLanguageVersion.of(17)
+
+configurations {
+    library
+    shade
+    implementation.extendsFrom library
+    shade.extendsFrom library
+}
 
 mixin {
     add sourceSets.main, "eerreforged.refmap.json"
@@ -35,7 +46,8 @@ mixin {
 
 minecraft {
     mappings channel: 'official', version: '1.19.4'
-	
+    accessTransformer = file('src/main/resources/META-INF/accesstransformer.cfg')
+    
     runs {
         client {
             properties 'mixin.env.remapRefMap': 'true'
@@ -73,10 +85,14 @@ minecraft {
 sourceSets.main.resources { srcDir 'src/generated/resources' }
 
 repositories {
+    maven { url 'https://jitpack.io' }
 }
 
 dependencies {
     minecraft 'net.minecraftforge:forge:1.19.4-45.0.13'
+    implementation("com.github.LlamaLad7:MixinExtras:0.1.1")
+    annotationProcessor("com.github.LlamaLad7:MixinExtras:0.1.1")
+    shade 'com.github.LlamaLad7:MixinExtras:0.1.1'
 }
 
 jar {
@@ -93,17 +109,51 @@ jar {
     }
 }
 
+shadowJar {
+    configurations = [project.configurations.shade]
+    from sourceSets.main.allSource
+    relocate 'com.llamalad7', 'mod.azure.shadowed.llamalad7'
+    classifier ''
+}
+
+reobf {
+    shadowJar {} // Reobfuscate the shadowed JAR
+}
+
+tasks.build.dependsOn reobfShadowJar
+publish.dependsOn('reobfJar')
+shadowJar.dependsOn('classes')
 jar.finalizedBy('reobfJar')
+
+
+task packageSources(type: ShadowJar, dependsOn: 'classes') {
+    configurations = [project.configurations.shade]
+    from sourceSets.main.allSource
+    relocate 'com.llamalad7', 'mod.azure.shadowed.llamalad7'
+    classifier = 'sources'
+}
+
+artifacts {
+    archives shadowJar
+    archives packageSources
+}
+
+afterEvaluate {
+    publish.dependsOn('reobfShadowJar')
+    publish.dependsOn('reobfJar')
+    publish.dependsOn('packageSources')
+    shadowJar.dependsOn(packageSources)
+    shadowJar.dependsOn('classes')
+}
+
+shadowJar.finalizedBy(reobfShadowJar)
+jar.finalizedBy(packageSources)
 
 publishing {
     publications {
         mavenJava(MavenPublication) {
-            artifact jar
-        }
-    }
-    repositories {
-        maven {
-            url "file://${project.projectDir}/mcmodsrepo"
+            artifact shadowJar
+            artifactId = project.archivesBaseName
         }
     }
 }
@@ -125,10 +175,6 @@ if (file('key.properties').exists()) {
         	releaseType = "release"
         	changelogType = 'text'
         	changelog = file('CHANGELOG.txt')
-        	addGameVersion("1.19")
-        	addGameVersion("1.19.1")
-        	addGameVersion("1.19.2")
-        	addGameVersion("1.19.3")
         	addGameVersion("1.19.4")
         	addGameVersion("Forge")
         	addGameVersion("Java 17")
@@ -145,10 +191,10 @@ if (file('key.properties').exists()) {
 		token = modrinthProp.getProperty('modrinthKey')
 		projectId = 'IHD4lC6O' 
 		versionNumber = project.version 
-		versionName = '1.19'
+		versionName = '1.19.4'
 		uploadFile = jar 
 		changelog = rootProject.file("changelog.txt").text
-		gameVersions = ['1.19','1.19.1','1.19.2','1.19.3','1.19.4']
+		gameVersions = ['1.19.4']
 		loaders = ['forge']
 	}
 }

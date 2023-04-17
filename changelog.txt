@@ -1,3 +1,5 @@
-v.1.0.3
+v.1.0.4
 
-- Adds 1.19.4 support
+- Adds in a possible work around for BlockEntity ticking crashes! 
+
+If you are using Fabric, please use: https://www.curseforge.com/minecraft/mc-mods/neruina
