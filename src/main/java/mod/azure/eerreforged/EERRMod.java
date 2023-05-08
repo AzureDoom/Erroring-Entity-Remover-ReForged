@@ -10,7 +10,7 @@ import net.minecraftforge.fml.common.Mod;
 public class EERRMod {
 
 	public static final Logger LOGGER = LogManager.getLogger("eer");
-	
+
 	public EERRMod() {
 		MinecraftForge.EVENT_BUS.register(this);
 	}

@@ -90,9 +90,10 @@ repositories {
 
 dependencies {
     minecraft 'net.minecraftforge:forge:1.19.4-45.0.13'
-    implementation("com.github.LlamaLad7:MixinExtras:0.1.1")
-    annotationProcessor("com.github.LlamaLad7:MixinExtras:0.1.1")
-    shade 'com.github.LlamaLad7:MixinExtras:0.1.1'
+    implementation(annotationProcessor("com.github.llamalad7.mixinextras:mixinextras-common:0.2.0-beta.6"))
+    implementation(jarJar("com.github.llamalad7.mixinextras:mixinextras-forge:0.2.0-beta.6")) {
+        jarJar.ranged(it, "[0.2.0-beta.6,)")
+    }
 }
 
 jar {
