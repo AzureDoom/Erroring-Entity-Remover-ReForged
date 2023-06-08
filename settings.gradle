@@ -3,4 +3,4 @@ pluginManagement {
         gradlePluginPortal()
     }
 }
-rootProject.name = 'eerr-forge-1.19'
+rootProject.name = 'eerr-forge-1.20'
