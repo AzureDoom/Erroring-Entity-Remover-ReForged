@@ -27,9 +27,9 @@ apply plugin: "com.modrinth.minotaur"
 import com.modrinth.minotaur.dependencies.ModDependency
 import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
 
-version = '1.0.6'
+version = '1.0.7'
 group = 'mod.azure.eerreforged'
-archivesBaseName = 'eerreforged-1.20'
+archivesBaseName = 'eerreforged-1.20.1'
 
 java.toolchain.languageVersion = JavaLanguageVersion.of(17)
 
@@ -45,7 +45,7 @@ mixin {
 }
 
 minecraft {
-    mappings channel: 'official', version: '1.20'
+    mappings channel: 'official', version: '1.20.1'
     accessTransformer = file('src/main/resources/META-INF/accesstransformer.cfg')
     
     runs {
@@ -89,7 +89,7 @@ repositories {
 }
 
 dependencies {
-    minecraft 'net.minecraftforge:forge:1.20-46.0.1'
+    minecraft 'net.minecraftforge:forge:1.20.1-47.0.0'
     implementation(annotationProcessor("com.github.llamalad7.mixinextras:mixinextras-common:0.2.0-beta.6"))
     implementation(jarJar("com.github.llamalad7.mixinextras:mixinextras-forge:0.2.0-beta.6")) {
         jarJar.ranged(it, "[0.2.0-beta.6,)")
@@ -176,7 +176,7 @@ if (file('key.properties').exists()) {
         	releaseType = "release"
         	changelogType = 'text'
         	changelog = file('CHANGELOG.txt')
-        	addGameVersion("1.20")
+        	addGameVersion("1.20.1")
         	addGameVersion("Forge")
         	addGameVersion("Java 17")
     	}
@@ -192,7 +192,7 @@ if (file('key.properties').exists()) {
 		token = modrinthProp.getProperty('modrinthKey')
 		projectId = 'IHD4lC6O' 
 		versionNumber = project.version 
-		versionName = '1.20'
+		versionName = '1.20.1'
 		uploadFile = jar 
 		changelog = rootProject.file("changelog.txt").text
 		gameVersions = ['1.20']
