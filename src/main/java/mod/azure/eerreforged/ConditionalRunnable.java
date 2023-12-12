@@ -1,57 +1,36 @@
-package mod.azure.eerreforged;
+package com.bawnorton.neruina.thread;
 
-import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.locks.ReentrantLock;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 public class ConditionalRunnable {
-	private final ReentrantLock LOCK = new ReentrantLock();
-	private boolean conditionMet = false;
+    private final Runnable runnable;
+    private final ConditionChecker conditionChecker;
+    private final ScheduledExecutorService scheduler;
 
-	private static final ExecutorService executor = Executors.newFixedThreadPool(4);
+    private ConditionalRunnable(Runnable runnable, ConditionChecker conditionChecker) {
+        this.runnable = runnable;
+        this.conditionChecker = conditionChecker;
+        this.scheduler = Executors.newScheduledThreadPool(1);
+    }
 
-	public static void create(Runnable task, ConditionChecker checker) {
-		new ConditionalRunnable().run(task, checker);
-	}
+    public static void create(Runnable runnable, ConditionChecker conditionChecker) {
+        new ConditionalRunnable(runnable, conditionChecker).start();
+    }
 
-	private void run(Runnable task, ConditionChecker checker) {
-		executor.execute(() -> {
-			try {
-				synchronized (LOCK) {
-					while (!conditionMet) {
-						LOCK.wait(1000);
-					}
-					task.run();
-				}
-			} catch (InterruptedException e) {
-				e.printStackTrace();
-			}
-		});
-		executor.execute(() -> {
-			while (!checker.isCompleted()) {
-				checker.run();
-			}
-			synchronized (LOCK) {
-				conditionMet = true;
-				LOCK.notify();
-			}
-		});
-	}
+    public void start() {
+        scheduler.scheduleAtFixedRate(this::executeIfConditionSucceeds, 0, 10, TimeUnit.MILLISECONDS);
+    }
 
-	// this is ... not the best way to do this, but it works
-	@FunctionalInterface
-	public interface ConditionChecker extends Runnable {
-		AtomicBoolean completed = new AtomicBoolean(false);
+    private void executeIfConditionSucceeds() {
+        if (conditionChecker.checkCondition()) {
+            scheduler.shutdown();
+            runnable.run();
+        }
+    }
 
-		boolean checkCondition();
-
-		default void run() {
-			completed.set(checkCondition());
-		}
-
-		default boolean isCompleted() {
-			return completed.get();
-		}
-	}
+    public interface ConditionChecker {
+        boolean checkCondition();
+    }
 }
